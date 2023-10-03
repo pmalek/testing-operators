@@ -15,6 +15,11 @@ import (
 )
 
 func TestFakes12(t *testing.T) {
+	// Scheme defines methods for serializing and deserializing API objects, a type
+	// registry for converting group, version, and kind information to and from Go
+	// schemas, and mappings between Go schemas of different versions. A scheme is the
+	// foundation for a versioned API and versioned configuration over time.
+
 	scheme := runtime.NewScheme()
 	require.NoError(t, gatewayv1beta1.AddToScheme(scheme))
 
@@ -30,16 +35,11 @@ func TestFakes12(t *testing.T) {
 			WithRESTMapper(restMapper).
 			Build()
 
-		gateway := &gatewayv1beta1.Gateway{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "gateway",
-			},
-		}
-
 		gatewayList := &gatewayv1beta1.GatewayList{}
-
 		assert.NoError(t, fakeClient.List(ctx, gatewayList))
 		assert.Len(t, gatewayList.Items, 0)
+
+		gateway := &gatewayv1beta1.Gateway{ObjectMeta: metav1.ObjectMeta{Name: "gateway"}}
 
 		assert.NoError(t, fakeClient.Create(ctx, gateway))
 

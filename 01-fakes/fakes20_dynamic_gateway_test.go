@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -18,12 +17,15 @@ func TestFakes20(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, gatewayv1beta1.AddToScheme(scheme))
 
-	dynClient := dyn_fake.NewSimpleDynamicClient(scheme)
-	r := dynClient.Resource(schema.GroupVersionResource{
-		Group:    "gateway.networking.k8s.io",
-		Version:  "v1beta1",
+	gwGVR := schema.GroupVersionResource{
+		Group:    gatewayv1beta1.GroupVersion.Group,
+		Version:  gatewayv1beta1.GroupVersion.Version,
 		Resource: "gateways",
-	})
+	}
+
+	dynClient := dyn_fake.NewSimpleDynamicClient(scheme)
+
+	r := dynClient.Resource(gwGVR)
 
 	t.Run("gateways can be created, listed, modified and deleted", func(t *testing.T) {
 		ctx := context.Background()
@@ -31,7 +33,7 @@ func TestFakes20(t *testing.T) {
 		t.Run("dynamic client for custom GVR can list resources", func(t *testing.T) {
 			unstructuredList, err := r.List(ctx, metav1.ListOptions{})
 			require.NoError(t, err)
-			assert.Len(t, unstructuredList.Items, 0)
+			require.Len(t, unstructuredList.Items, 0)
 		})
 	})
 }
